@@ -1,0 +1,26 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,graphicx}
+\graphicspath{{images/}}
+\input{macros/aoa-problems}
+\input{macros/aoa-arith}
+
+% ---- display settings (book-wide; blocks can override style and cols)
+\arithstyle{compact}     % compact | stacked
+\problemcols{1}
+\answers{none}           % none | show | solution | space | only
+%\reviewmode             % show skipped problems in gray, with ids
+
+\title{The Art of Arithmetic}
+\author{Alex James Bene\\Department of Mathematics, Santa Monica College}
+\date{}
+\begin{document}
+\maketitle
+
+\input{chapters/ch1-addition}
+
+\section*{Answers}
+\AnswersFor{1}{problems/1-1-single-digit}
+\AnswersFor{2}{problems/1-2-carrying}
+\AnswersFor{3}{problems/1-3-borrowing}
+\end{document}

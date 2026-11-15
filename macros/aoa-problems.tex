@@ -1,0 +1,135 @@
+% aoa-problems.tex -- sections, exercise blocks and problems
+% for The Art of Arithmetic.  Plain LaTeX2e; loaded with \input.
+\makeatletter
+\RequirePackage{keyval,xcolor}
+
+% ---------------------------------------------------------- settings
+% Book-wide defaults; any \begin{exblock}[...] can override style and cols.
+\def\aoa@style{compact}       % compact | stacked
+\def\aoa@cols{1}              % problems per row
+\def\aoa@answers{none}        % none | show | solution | space | only
+\newif\ifaoa@review           % review: show skipped problems in gray
+\newcommand{\arithstyle}[1]{\def\aoa@style{#1}}
+\newcommand{\problemcols}[1]{\def\aoa@cols{#1}}
+\newcommand{\answers}[1]{\def\aoa@answers{#1}}
+\newcommand{\reviewmode}{\aoa@reviewtrue}
+
+% ------------------------------------------------------------ lesson
+% \lesson: placeholder box until the lesson is written.
+% Hidden in the workbook and solutions builds (answers=space or solution).
+\def\aoa@spacemode{space}\def\aoa@solutionmode{solution}
+\newcommand{\lesson}[1][3cm]{%
+  \ifx\aoa@answers\aoa@spacemode\else
+  \ifx\aoa@answers\aoa@solutionmode\else
+    \aoa@lessonbox{#1}%
+  \fi\fi}
+\newcommand{\aoa@lessonbox}[1]{%
+  \par\medskip\noindent
+  \fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{%
+    \centering\color{gray}\itshape Lesson exposition goes here\par
+    \vspace{#1}}}\par\medskip}
+
+% Real lesson text goes in \begin{exposition} ... \end{exposition}.
+% It prints in the book and is left out of the workbook and solutions.
+\newif\ifaoa@nolesson
+\newenvironment{exposition}{%
+  \aoa@nolessonfalse
+  \ifx\aoa@answers\aoa@spacemode\aoa@nolessontrue\fi
+  \ifx\aoa@answers\aoa@solutionmode\aoa@nolessontrue\fi
+  \ifaoa@nolesson\setbox0\vbox\bgroup\fi
+}{%
+  \ifaoa@nolesson\egroup\fi
+}
+
+% ------------------------------------------------------------ blocks
+\newcounter{exblock}[section]
+\renewcommand{\theexblock}{\thesection.\arabic{exblock}}
+\newcounter{problem}[exblock]
+\renewcommand{\theproblem}{\arabic{problem}}
+\def\p@problem{\theexblock.}
+
+\newif\ifaoa@skip
+\let\aoa@blockskip\iffalse
+\define@key{aoablock}{style}{\def\aoa@style{#1}}
+\define@key{aoablock}{cols}{\def\aoa@cols{#1}}
+\define@key{aoablock}{themes}{\def\aoa@blockthemes{#1}}
+\define@key{aoablock}{skip}[]{\aoa@skiptrue}
+
+\newlength{\aoa@colsep}\setlength{\aoa@colsep}{1em}
+\newlength{\aoa@cellwidth}
+\newcount\aoa@cell
+\newsavebox{\aoa@box}
+
+\newenvironment{exblock}[1][]{%
+  \aoa@skipfalse \def\aoa@blockthemes{}%
+  \setkeys{aoablock}{#1}%
+  \ifaoa@skip \ifaoa@review\else
+    \setbox0\vbox\bgroup  % swallow the whole block
+  \fi\fi
+  \ifaoa@skip\else\refstepcounter{exblock}\fi
+  \let\aoa@blockskip\ifaoa@skip
+  \par\medskip\noindent
+  \ifx\aoa@answers\aoa@only
+    \textbf{\theexblock}\par\noindent
+  \else
+    {\sffamily\bfseries\ifaoa@skip\color{gray}Exercises (skipped)%
+      \else Exercises \theexblock\fi}\par\nobreak\smallskip\nobreak\noindent
+  \fi
+  \setlength{\aoa@cellwidth}{\dimexpr(\linewidth-\aoa@colsep*(\aoa@cols-1))/\aoa@cols\relax}%
+  \global\aoa@cell=0 \ignorespaces
+}{%
+  \par\medskip
+  \aoa@blockskip \ifaoa@review\else \egroup \fi\fi
+}
+\def\aoa@only{only}
+
+% ----------------------------------------------------------- problems
+\define@key{aoaprob}{id}{\def\aoa@id{#1}}
+\define@key{aoaprob}{themes}{\def\aoa@themes{#1}}
+\define@key{aoaprob}{skip}[]{\aoa@skiptrue}
+
+\newenvironment{problem}[1][]{%
+  \begingroup
+  \aoa@skipfalse \def\aoa@id{}\def\aoa@themes{}%
+  \setkeys{aoaprob}{#1}%
+  \aoa@blockskip \aoa@skiptrue \fi
+  \ifaoa@skip\else
+    \refstepcounter{problem}%
+    \ifx\aoa@id\@empty
+      \edef\aoa@id{\theexblock.\theproblem}%
+    \else
+      \ifx\aoa@answers\aoa@only\else\label{\aoa@id}\fi
+    \fi
+  \fi
+  \begin{lrbox}{\aoa@box}\begin{minipage}[t]{\aoa@cellwidth}%
+    \ifaoa@skip\color{gray}\fi
+    \makebox[1.6em][l]{\textbf{\ifaoa@skip--\else\theproblem.\fi}}%
+    \ignorespaces
+}{%
+    \ifaoa@review
+      \ifaoa@skip\hfill{\scriptsize\color{gray}skipped}\fi
+      \par{\scriptsize\ttfamily\color{gray}\aoa@id
+        \ifx\aoa@themes\@empty\else\space[\aoa@themes]\fi}%
+    \fi
+  \end{minipage}\end{lrbox}%
+  \ifaoa@skip \ifaoa@review \aoa@place \fi \else \aoa@place \fi
+  \endgroup\ignorespacesafterend
+}
+% place the boxed problem in the grid, reading across
+\def\aoa@place{%
+  \ifnum\aoa@cell=0 \else\hspace{\aoa@colsep}\fi
+  \usebox{\aoa@box}%
+  \global\advance\aoa@cell by 1
+  \ifnum\aoa@cell=\aoa@cols\relax
+    \global\aoa@cell=0 \par\medskip\noindent
+  \fi}
+
+% ------------------------------------------------- answers at the back
+% \AnswersFor{<section number>}{<block file>}
+\newcommand{\AnswersFor}[2]{%
+  \begingroup
+  \def\aoa@answers{only}\def\aoa@style{compact}\def\aoa@cols{4}%
+  \setcounter{section}{\numexpr#1-1\relax}\stepcounter{section}%
+  \input{#2}%
+  \endgroup}
+\makeatother

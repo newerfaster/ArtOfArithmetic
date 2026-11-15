@@ -1,0 +1,82 @@
+% aoa-arith.tex -- the arithmetic commands \add, \sub, \mul.
+% STAND-INS: this is the one file to replace (or turn into thin wrappers)
+% when Alex's solutions package is ready. Problem files don't change.
+%
+% Uses \fpeval (xfp) to compute answers; exact up to 16 digits.
+\makeatletter
+\RequirePackage{xfp,array}
+
+\newcommand{\add}[2]{\aoa@arith{+}{+}{#1}{#2}}
+\newcommand{\sub}[2]{\aoa@arith{-}{-}{#1}{#2}}
+\newcommand{\mul}[2]{\aoa@arith{\times}{*}{#1}{#2}}
+
+% #1 printed operator, #2 fp operator, #3 #4 operands
+\def\aoa@arith#1#2#3#4{%
+  \edef\aoa@ans{\fpeval{#3 #2 #4}}%
+  \def\aoa@tmp{compact}%
+  \ifx\aoa@answers\aoa@only
+    $\aoa@ans$%
+  \else\ifx\aoa@style\aoa@tmp
+    \aoa@compact{#1}{#3}{#4}%
+  \else
+    \aoa@stacked{#1}{#3}{#4}%
+  \fi\fi}
+
+\def\aoa@show{show}\def\aoa@solution{solution}\def\aoa@space{space}
+
+\def\aoa@compact#1#2#3{%
+  \ifx\aoa@answers\aoa@show
+    $#2 #1 #3 = \aoa@ans$%
+  % solutions and workbook: the problem appears once, in the solution's form
+  \else\ifx\aoa@answers\aoa@solution
+    \aoa@solutionbox{#1}{#2}{#3}%
+  \else\ifx\aoa@answers\aoa@space
+    \aoa@stack{#1}{#2}{#3}{\phantom}%
+  \else
+    $#2 #1 #3$%
+  \fi\fi\fi}
+
+\def\aoa@stacked#1#2#3{%
+  \ifx\aoa@answers\aoa@show
+    \aoa@stack{#1}{#2}{#3}{\@firstofone}%
+  \else\ifx\aoa@answers\aoa@solution
+    \aoa@solutionbox{#1}{#2}{#3}%
+  \else\ifx\aoa@answers\aoa@space
+    \aoa@stack{#1}{#2}{#3}{\phantom}%
+  \else
+    \aoa@stack{#1}{#2}{#3}{}%
+  \fi\fi\fi}
+
+% Stand-in for the worked solution: the stacked form, answer in color.
+% (In stacked style, `space' keeps the problem and hides only the answer.)
+\def\aoa@solutionbox#1#2#3{%
+  \aoa@stack{#1}{#2}{#3}{\aoa@solcolor}}
+
+% Stacked layout: integer parts right-aligned, decimal parts left-aligned,
+% so decimal points line up.  #4 is how to print the answer row:
+% empty (no answer), \@firstofone (plain), \phantom (room only),
+% or \aoa@solcolor (solution color).
+\def\aoa@solcolor{\textcolor{blue!60!black}}
+\def\aoa@stack#1#2#3#4{%
+  \aoa@split{#2}\let\aoa@ai\aoa@int\let\aoa@af\aoa@frac
+  \aoa@split{#3}\let\aoa@bi\aoa@int\let\aoa@bf\aoa@frac
+  \expandafter\aoa@split\expandafter{\aoa@ans}%
+  \let\aoa@ci\aoa@int\let\aoa@cf\aoa@frac
+  \def\aoa@tmp{#4}%
+  $\begin{array}[t]{@{}c@{\,}r@{}l@{}}
+     & \aoa@ai & \aoa@af \\
+   #1 & \aoa@bi & \aoa@bf \\ \hline
+     \ifx\aoa@tmp\@empty
+       & \vphantom{0} &
+     \else
+       & #4{\aoa@ci} & #4{\aoa@cf}
+     \fi
+   \end{array}$}
+
+% \aoa@split{12.34} -> \aoa@int=12, \aoa@frac=.34 (empty if no point)
+\def\aoa@split#1{\aoa@@split#1..\@nil}
+\def\aoa@@split#1.#2.#3\@nil{%
+  \def\aoa@int{#1}%
+  \def\aoa@tmpb{#2}%
+  \ifx\aoa@tmpb\@empty\def\aoa@frac{}\else\def\aoa@frac{.#2}\fi}
+\makeatother
