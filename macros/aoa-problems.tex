@@ -7,8 +7,8 @@
 % Book-wide defaults; any \begin{exblock}[...] can override style and cols.
 \def\aoa@style{compact}       % compact | stacked
 \def\aoa@cols{1}              % problems per row
-\def\aoa@answers{none}        % none | show | solution | space | only
-\newif\ifaoa@review           % review: show skipped problems in gray
+\def\aoa@answers{none}        % none | show | solution | space
+\newif\ifaoa@review           % review: show left-out problems in gray
 \newcommand{\arithstyle}[1]{\def\aoa@style{#1}}
 \newcommand{\problemcols}[1]{\def\aoa@cols{#1}}
 \newcommand{\answers}[1]{\def\aoa@answers{#1}}
@@ -41,7 +41,21 @@
   \ifaoa@nolesson\egroup\fi
 }
 
+% ---------------------------------------------------------- builds
+% The workbook and solutions builds are the ones with answers=space or
+% solution. Every other setting is a book build.
+\newif\ifaoa@workbook
+\def\aoa@checkbuild{%
+  \aoa@workbookfalse
+  \ifx\aoa@answers\aoa@spacemode\aoa@workbooktrue\fi
+  \ifx\aoa@answers\aoa@solutionmode\aoa@workbooktrue\fi}
+\def\aoa@showmode{show}
+
 % ------------------------------------------------------------ blocks
+% Problem files are workbook blocks: every problem is in the workbook,
+% and the ones tagged [book] are also exercises in the book.
+% A block tagged [bookonly] (exploratory problems written in a chapter
+% file) appears only in the book.
 \newcounter{exblock}[section]
 \renewcommand{\theexblock}{\thesection.\arabic{exblock}}
 \newcounter{problem}[exblock]
@@ -49,70 +63,102 @@
 \def\p@problem{\theexblock.}
 
 \newif\ifaoa@skip
-\let\aoa@blockskip\iffalse
+\newif\ifaoa@book
+\newif\ifaoa@blockskip
+\newif\ifaoa@bookonly
+\newif\ifaoa@show
 \define@key{aoablock}{style}{\def\aoa@style{#1}}
 \define@key{aoablock}{cols}{\def\aoa@cols{#1}}
 \define@key{aoablock}{themes}{\def\aoa@blockthemes{#1}}
-\define@key{aoablock}{skip}[]{\aoa@skiptrue}
+\define@key{aoablock}{skip}[]{\aoa@blockskiptrue}
+\define@key{aoablock}{bookonly}[]{\aoa@bookonlytrue}
 
 \newlength{\aoa@colsep}\setlength{\aoa@colsep}{1em}
 \newlength{\aoa@cellwidth}
 \newcount\aoa@cell
+\newcount\aoa@shown           % problems printed in the current block
 \newsavebox{\aoa@box}
+\newbox\aoa@blockbox
+\gdef\aoa@key{}               % answer key, collected as the book is built
+\gdef\aoa@blockkey{}
 
 \newenvironment{exblock}[1][]{%
-  \aoa@skipfalse \def\aoa@blockthemes{}%
+  \aoa@checkbuild
+  \aoa@blockskipfalse \aoa@bookonlyfalse \def\aoa@blockthemes{}%
   \setkeys{aoablock}{#1}%
-  \ifaoa@skip \ifaoa@review\else
-    \setbox0\vbox\bgroup  % swallow the whole block
-  \fi\fi
-  \ifaoa@skip\else\refstepcounter{exblock}\fi
-  \let\aoa@blockskip\ifaoa@skip
+  \refstepcounter{exblock}%
+  \global\aoa@shown=0 \gdef\aoa@blockkey{}%
+  \setbox\aoa@blockbox\vbox\bgroup
   \par\medskip\noindent
-  \ifx\aoa@answers\aoa@only
-    \textbf{\theexblock}\par\noindent
-  \else
-    {\sffamily\bfseries\ifaoa@skip\color{gray}Exercises (skipped)%
-      \else Exercises \theexblock\fi}\par\nobreak\smallskip\nobreak\noindent
-  \fi
+  {\sffamily\bfseries Exercises \theexblock}\par\nobreak\smallskip\nobreak\noindent
   \setlength{\aoa@cellwidth}{\dimexpr(\linewidth-\aoa@colsep*(\aoa@cols-1))/\aoa@cols\relax}%
   \global\aoa@cell=0 \ignorespaces
 }{%
   \par\medskip
-  \aoa@blockskip \ifaoa@review\else \egroup \fi\fi
+  \egroup
+  % keep the block only if something in it is printed
+  \ifnum\aoa@shown>0 \aoa@keepblock
+  \else \ifaoa@review \aoa@keepblock \else
+    \addtocounter{exblock}{-1}\fi\fi
 }
-\def\aoa@only{only}
+\def\aoa@keepblock{%
+  \par\unvbox\aoa@blockbox
+  \ifx\aoa@blockkey\@empty\else
+    \xdef\aoa@key{\unexpanded\expandafter{\aoa@key}%
+      \noexpand\aoa@keyblock{\theexblock}{\unexpanded\expandafter{\aoa@blockkey}}}%
+  \fi}
 
 % ----------------------------------------------------------- problems
 \define@key{aoaprob}{id}{\def\aoa@id{#1}}
 \define@key{aoaprob}{themes}{\def\aoa@themes{#1}}
 \define@key{aoaprob}{skip}[]{\aoa@skiptrue}
+\define@key{aoaprob}{book}[]{\aoa@booktrue}
+
+% A hand-written answer, for problems that aren't \add, \sub or \mul.
+\newcommand{\answer}[1]{%
+  \xdef\aoa@lastans{\unexpanded{#1}}%
+  \ifx\aoa@answers\aoa@showmode \par{\small\textit{Answer:} #1}\fi}
 
 \newenvironment{problem}[1][]{%
   \begingroup
-  \aoa@skipfalse \def\aoa@id{}\def\aoa@themes{}%
+  \aoa@skipfalse \aoa@bookfalse \def\aoa@id{}\def\aoa@themes{}%
   \setkeys{aoaprob}{#1}%
-  \aoa@blockskip \aoa@skiptrue \fi
-  \ifaoa@skip\else
-    \refstepcounter{problem}%
-    \ifx\aoa@id\@empty
-      \edef\aoa@id{\theexblock.\theproblem}%
-    \else
-      \ifx\aoa@answers\aoa@only\else\label{\aoa@id}\fi
-    \fi
+  \gdef\aoa@lastans{}%
+  % is this problem printed in this build?
+  \aoa@showtrue
+  \ifaoa@workbook
+    \ifaoa@bookonly \aoa@showfalse \def\aoa@why{book only}\fi
+  \else
+    \ifaoa@bookonly\else\ifaoa@book\else
+      \aoa@showfalse \def\aoa@why{workbook only}\fi\fi
+  \fi
+  \ifaoa@skip \aoa@showfalse \def\aoa@why{skipped}\fi
+  \ifaoa@blockskip \aoa@showfalse \def\aoa@why{skipped}\fi
+  \ifaoa@show
+    \refstepcounter{problem}\global\advance\aoa@shown by 1
+    \ifx\aoa@id\@empty \edef\aoa@id{\theexblock.\theproblem}%
+    \else \label{\aoa@id}\fi
   \fi
   \begin{lrbox}{\aoa@box}\begin{minipage}[t]{\aoa@cellwidth}%
-    \ifaoa@skip\color{gray}\fi
-    \makebox[1.6em][l]{\textbf{\ifaoa@skip--\else\theproblem.\fi}}%
+    \ifaoa@show\else\color{gray}\fi
+    \makebox[1.6em][l]{\textbf{\ifaoa@show\theproblem.\else--\fi}%
+      \ifaoa@workbook\ifaoa@book\ifaoa@show$^\star$\fi\fi\fi}%
     \ignorespaces
 }{%
     \ifaoa@review
-      \ifaoa@skip\hfill{\scriptsize\color{gray}skipped}\fi
+      \ifaoa@show\else\hfill{\scriptsize\color{gray}\aoa@why}\fi
       \par{\scriptsize\ttfamily\color{gray}\aoa@id
         \ifx\aoa@themes\@empty\else\space[\aoa@themes]\fi}%
     \fi
   \end{minipage}\end{lrbox}%
-  \ifaoa@skip \ifaoa@review \aoa@place \fi \else \aoa@place \fi
+  \ifaoa@show
+    \aoa@place
+    % collect the answer for the key at the back of the book
+    \ifaoa@workbook\else\ifx\aoa@lastans\@empty\else
+      \xdef\aoa@blockkey{\unexpanded\expandafter{\aoa@blockkey}%
+        \noexpand\aoa@keyitem{\theproblem}{\unexpanded\expandafter{\aoa@lastans}}}%
+    \fi\fi
+  \else \ifaoa@review \aoa@place \fi \fi
   \endgroup\ignorespacesafterend
 }
 % place the boxed problem in the grid, reading across
@@ -125,11 +171,13 @@
   \fi}
 
 % ------------------------------------------------- answers at the back
-% \AnswersFor{<section number>}{<block file>}
-\newcommand{\AnswersFor}[2]{%
-  \begingroup
-  \def\aoa@answers{only}\def\aoa@style{compact}\def\aoa@cols{4}%
-  \setcounter{section}{\numexpr#1-1\relax}\stepcounter{section}%
-  \input{#2}%
-  \endgroup}
+% \PrintAnswers: every answer collected so far, by block.
+% Prints nothing in the workbook and solutions builds.
+\newcommand{\PrintAnswers}{%
+  \aoa@checkbuild
+  \ifaoa@workbook\else
+    \section*{Answers}\aoa@key
+  \fi}
+\def\aoa@keyblock#1#2{\par\smallskip\noindent\textbf{#1}\quad #2\par}
+\def\aoa@keyitem#1#2{\mbox{\textbf{#1.}~#2}\hskip 1.5em plus 1em\relax}
 \makeatother
