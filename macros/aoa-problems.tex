@@ -12,17 +12,16 @@
 \newcommand{\arithstyle}[1]{\def\aoa@style{#1}}
 \newcommand{\problemcols}[1]{\def\aoa@cols{#1}}
 \newcommand{\answers}[1]{\def\aoa@answers{#1}}
+\def\aoa@build{book}          % book | workbook
+\newcommand{\build}[1]{\def\aoa@build{#1}}
 \newcommand{\reviewmode}{\aoa@reviewtrue}
 
 % ------------------------------------------------------------ lesson
 % \lesson: placeholder box until the lesson is written.
-% Hidden in the workbook and solutions builds (answers=space or solution).
-\def\aoa@spacemode{space}\def\aoa@solutionmode{solution}
+% Hidden in the workbook build.
 \newcommand{\lesson}[1][3cm]{%
-  \ifx\aoa@answers\aoa@spacemode\else
-  \ifx\aoa@answers\aoa@solutionmode\else
-    \aoa@lessonbox{#1}%
-  \fi\fi}
+  \aoa@checkbuild
+  \ifaoa@workbook\else\aoa@lessonbox{#1}\fi}
 \newcommand{\aoa@lessonbox}[1]{%
   \par\medskip\noindent
   \fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{%
@@ -33,22 +32,21 @@
 % It prints in the book and is left out of the workbook and solutions.
 \newif\ifaoa@nolesson
 \newenvironment{exposition}{%
-  \aoa@nolessonfalse
-  \ifx\aoa@answers\aoa@spacemode\aoa@nolessontrue\fi
-  \ifx\aoa@answers\aoa@solutionmode\aoa@nolessontrue\fi
+  \aoa@checkbuild
+  \ifaoa@workbook\aoa@nolessontrue\else\aoa@nolessonfalse\fi
   \ifaoa@nolesson\setbox0\vbox\bgroup\fi
 }{%
   \ifaoa@nolesson\egroup\fi
 }
 
 % ---------------------------------------------------------- builds
-% The workbook and solutions builds are the ones with answers=space or
-% solution. Every other setting is a book build.
+% \build{book}: lessons, [book] problems, answer key at the back.
+% \build{workbook}: every problem, no lessons, no answer key.
+% Either build works with any \answers setting.
 \newif\ifaoa@workbook
+\def\aoa@workbookname{workbook}
 \def\aoa@checkbuild{%
-  \aoa@workbookfalse
-  \ifx\aoa@answers\aoa@spacemode\aoa@workbooktrue\fi
-  \ifx\aoa@answers\aoa@solutionmode\aoa@workbooktrue\fi}
+  \ifx\aoa@build\aoa@workbookname\aoa@workbooktrue\else\aoa@workbookfalse\fi}
 \def\aoa@showmode{show}
 
 % ------------------------------------------------------------ blocks

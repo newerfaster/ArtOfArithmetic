@@ -5,7 +5,10 @@
 \input{macros/aoa-problems}
 \input{macros/aoa-arith}
 
-% ---- display settings (book-wide; blocks can override style and cols)
+% ---- settings (blocks can override style and cols)
+% Workbook: \build{workbook} + \answers{space}.  Solutions: \build{workbook} + \answers{solution}.
+% Full problem list: \build{workbook} + \answers{none} (or show) + \reviewmode.
+\build{book}             % book | workbook
 \arithstyle{compact}     % compact | stacked
 \problemcols{1}
 \answers{none}           % none | show | solution | space
