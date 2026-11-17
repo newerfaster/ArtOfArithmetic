@@ -1,74 +1,100 @@
-% aoa-arith.tex -- the arithmetic commands \add, \sub, \mul.
+% aoa-arith.tex -- the arithmetic commands.
+%   \add{a}{b}  or  \add{a,b,c,...}   (any number of rows)
+%   \sub{a}{b}      \mul{a}{b}      \dvd{n}{d}  (n divided by d)
 % STAND-INS: this is the one file to replace (or turn into thin wrappers)
-% when Alex's solutions package is ready. Problem files don't change.
+% when Alex's own package is ready. Problem files don't change.
 %
-% Uses \fpeval (xfp) to compute answers; exact up to 16 digits.
+% Answers are computed exactly, to any number of digits (bigintcalc for
+% + - x, integer long division for \dvd).
 \makeatletter
-\RequirePackage{xfp,array}
+\RequirePackage{bigintcalc,array}
 
-\newcommand{\add}[2]{\aoa@arith{+}{+}{#1}{#2}}
-\newcommand{\sub}[2]{\aoa@arith{-}{-}{#1}{#2}}
-\newcommand{\mul}[2]{\aoa@arith{\times}{*}{#1}{#2}}
+% \checkanswers: write every computed answer to <jobname>.ans, for checking
+\newwrite\aoa@ansfile \newif\ifaoa@logging
+\newcommand{\checkanswers}{\aoa@loggingtrue\immediate\openout\aoa@ansfile=\jobname.ans}
+\def\aoa@logans#1#2{\ifaoa@logging
+  \immediate\write\aoa@ansfile{#1|#2|\expandafter\strip@prefix\meaning\aoa@ans}\fi}
 
-% #1 printed operator, #2 fp operator, #3 #4 operands
-\def\aoa@arith#1#2#3#4{%
-  \edef\aoa@ans{\fpeval{#3 #2 #4}}%
+% ------------------------------------------------------------ commands
+\newcommand{\add}[1]{\@ifnextchar\bgroup{\aoa@addtwo{#1}}{\aoa@arith{+}{add}{#1}}}
+\def\aoa@addtwo#1#2{\aoa@arith{+}{add}{#1,#2}}
+\newcommand{\sub}[2]{\aoa@arith{-}{sub}{#1,#2}}
+\newcommand{\mul}[2]{\aoa@arith{\times}{mul}{#1,#2}}
+\newcommand{\dvd}[2]{\aoa@division{#1}{#2}}
+
+% #1 printed operator, #2 add|sub|mul, #3 comma list of operands
+% (spaces and line breaks in the list are removed first)
+\def\aoa@arith#1#2#3{%
+  \edef\aoa@L{\zap@space#3 \@empty}%
+  \expandafter\aoa@@arith\expandafter{\aoa@L}{#1}{#2}}
+\def\aoa@@arith#1#2#3{\aoa@@@arith{#2}{#3}{#1}}
+\def\aoa@@@arith#1#2#3{%
+  \aoa@compute{#2}{#3}%
   \global\let\aoa@lastans\aoa@ans   % for the answer key
+  \aoa@logans{#2}{#3}%
   \def\aoa@tmp{compact}%
   \ifx\aoa@style\aoa@tmp
-    \aoa@compact{#1}{#3}{#4}%
+    \aoa@compact{#1}{#3}%
   \else
-    \aoa@stacked{#1}{#3}{#4}%
+    \aoa@stacked{#1}{#3}%
   \fi}
 
 \def\aoa@show{show}\def\aoa@solution{solution}\def\aoa@space{space}
 
-\def\aoa@compact#1#2#3{%
+% compact: 4807 + 2971 (= 7778 with answers=show)
+\def\aoa@compact#1#2{%
   \ifx\aoa@answers\aoa@show
-    $#2 #1 #3 = \aoa@ans$%
+    $\aoa@inline{#1}{#2} = \aoa@ans$%
   % solutions and workbook: the problem appears once, in the solution's form
   \else\ifx\aoa@answers\aoa@solution
-    \aoa@solutionbox{#1}{#2}{#3}%
+    \aoa@solutionbox{#1}{#2}%
   \else\ifx\aoa@answers\aoa@space
-    \aoa@stack{#1}{#2}{#3}{\phantom}%
+    \aoa@stack{#1}{#2}{\phantom}%
   \else
-    $#2 #1 #3$%
+    $\aoa@inline{#1}{#2}$%
   \fi\fi\fi}
+\def\aoa@inline#1#2{%
+  \def\aoa@sep{}%
+  \@for\aoa@x:=#2\do{\aoa@sep\aoa@x\def\aoa@sep{#1}}}
 
-\def\aoa@stacked#1#2#3{%
+\def\aoa@stacked#1#2{%
   \ifx\aoa@answers\aoa@show
-    \aoa@stack{#1}{#2}{#3}{\@firstofone}%
+    \aoa@stack{#1}{#2}{\@firstofone}%
   \else\ifx\aoa@answers\aoa@solution
-    \aoa@solutionbox{#1}{#2}{#3}%
+    \aoa@solutionbox{#1}{#2}%
   \else\ifx\aoa@answers\aoa@space
-    \aoa@stack{#1}{#2}{#3}{\phantom}%
+    \aoa@stack{#1}{#2}{\phantom}%
   \else
-    \aoa@stack{#1}{#2}{#3}{}%
+    \aoa@stack{#1}{#2}{}%
   \fi\fi\fi}
 
 % Stand-in for the worked solution: the stacked form, answer in color.
-% (In stacked style, `space' keeps the problem and hides only the answer.)
-\def\aoa@solutionbox#1#2#3{%
-  \aoa@stack{#1}{#2}{#3}{\aoa@solcolor}}
+\def\aoa@solcolor{\textcolor{blue!60!black}}
+\def\aoa@solutionbox#1#2{\aoa@stack{#1}{#2}{\aoa@solcolor}}
 
 % Stacked layout: integer parts right-aligned, decimal parts left-aligned,
-% so decimal points line up.  #4 is how to print the answer row:
-% empty (no answer), \@firstofone (plain), \phantom (room only),
-% or \aoa@solcolor (solution color).
-\def\aoa@solcolor{\textcolor{blue!60!black}}
-\def\aoa@stack#1#2#3#4{%
-  \aoa@split{#2}\let\aoa@ai\aoa@int\let\aoa@af\aoa@frac
-  \aoa@split{#3}\let\aoa@bi\aoa@int\let\aoa@bf\aoa@frac
+% so decimal points line up; the operator sits on the last row.
+% #3 is how to print the answer row: empty (no answer), \@firstofone,
+% \phantom (room only) or \aoa@solcolor.
+\newtoks\aoa@rows
+\newcount\aoa@n \newcount\aoa@i
+\def\aoa@stack#1#2#3{%
+  \aoa@n=0 \@for\aoa@x:=#2\do{\advance\aoa@n 1 }%
+  \aoa@rows={}\aoa@i=0
+  \@for\aoa@x:=#2\do{%
+    \advance\aoa@i 1
+    \expandafter\aoa@split\expandafter{\aoa@x}%
+    \edef\aoa@row{\ifnum\aoa@i=\aoa@n\noexpand#1\fi
+      & \aoa@int & \aoa@frac \noexpand\\}%
+    \aoa@rows=\expandafter{\the\expandafter\aoa@rows\aoa@row}}%
   \expandafter\aoa@split\expandafter{\aoa@ans}%
-  \let\aoa@ci\aoa@int\let\aoa@cf\aoa@frac
-  \def\aoa@tmp{#4}%
+  \def\aoa@tmp{#3}%
   $\begin{array}[t]{@{}c@{\,}r@{}l@{}}
-     & \aoa@ai & \aoa@af \\
-   #1 & \aoa@bi & \aoa@bf \\ \hline
+     \the\aoa@rows \hline
      \ifx\aoa@tmp\@empty
        & \vphantom{0} &
      \else
-       & #4{\aoa@ci} & #4{\aoa@cf}
+       & #3{\aoa@int} & #3{\aoa@frac}
      \fi
    \end{array}$}
 
@@ -78,4 +104,167 @@
   \def\aoa@int{#1}%
   \def\aoa@tmpb{#2}%
   \ifx\aoa@tmpb\@empty\def\aoa@frac{}\else\def\aoa@frac{.#2}\fi}
+
+% ------------------------------------------------ exact + - x on decimals
+% Each operand is scaled to an integer, computed with bigintcalc, and the
+% decimal point put back.
+\newcount\aoa@cnt \newcount\aoa@K \newcount\aoa@k
+% \aoa@parse{x}: \aoa@I integer digits, \aoa@F fraction digits, \aoa@k their count
+\def\aoa@parse#1{\aoa@@parse#1..\@nil}
+\def\aoa@@parse#1.#2.#3\@nil{%
+  \def\aoa@I{#1}\ifx\aoa@I\@empty\def\aoa@I{0}\fi
+  \def\aoa@F{#2}\aoa@len{#2}\aoa@k=\aoa@cnt}
+\def\aoa@len#1{\aoa@cnt=0 \aoa@@len#1\aoa@end}
+\def\aoa@@len#1{\ifx#1\aoa@end\else\advance\aoa@cnt 1 \expandafter\aoa@@len\fi}
+\def\aoa@end{\aoa@end}
+% \aoa@zeros{n}: n zeros (expandable)
+\def\aoa@zeros#1{\ifnum#1>0 0\expandafter\aoa@zeros\expandafter{\the\numexpr#1-1\relax}\fi}
+% \aoa@scaled{x}{K} -> \aoa@S = x * 10^K as a normalized integer
+\def\aoa@scaled#1#2{%
+  \aoa@parse{#1}%
+  \edef\aoa@S{\aoa@I\aoa@F\aoa@zeros{\numexpr#2-\aoa@k\relax}}%
+  \edef\aoa@S{\bigintcalcNum{\aoa@S}}}
+
+\def\aoa@compute#1#2{%
+  \def\aoa@tmp{#1}\def\aoa@tmpm{mul}%
+  \ifx\aoa@tmp\aoa@tmpm
+    % multiply: decimals add up
+    \aoa@K=0 \def\aoa@acc{1}%
+    \@for\aoa@x:=#2\do{%
+      \expandafter\aoa@parse\expandafter{\aoa@x}%
+      \expandafter\aoa@scaled\expandafter{\aoa@x}{\aoa@k}%
+      \advance\aoa@K\aoa@k
+      \edef\aoa@acc{\bigintcalcMul{\aoa@acc}{\aoa@S}}}%
+    \aoa@unscale{\aoa@acc}{\aoa@K}\aoa@stripzeros
+  \else
+    % add or subtract: work at the largest number of decimals
+    \aoa@K=0
+    \@for\aoa@x:=#2\do{%
+      \expandafter\aoa@parse\expandafter{\aoa@x}%
+      \ifnum\aoa@k>\aoa@K \aoa@K=\aoa@k \fi}%
+    \let\aoa@acc\relax
+    \@for\aoa@x:=#2\do{%
+      \expandafter\aoa@scaled\expandafter{\aoa@x}{\aoa@K}%
+      \ifx\aoa@acc\relax \let\aoa@acc\aoa@S
+      \else
+        \def\aoa@tmpm{sub}%
+        \ifx\aoa@tmp\aoa@tmpm
+          \edef\aoa@acc{\bigintcalcSub{\aoa@acc}{\aoa@S}}%
+        \else
+          \edef\aoa@acc{\bigintcalcAdd{\aoa@acc}{\aoa@S}}%
+        \fi
+      \fi}%
+    \aoa@unscale{\aoa@acc}{\aoa@K}%
+  \fi}
+
+% \aoa@unscale{R}{K}: \aoa@ans = R / 10^K written with K decimals
+\def\aoa@unscale#1#2{%
+  \edef\aoa@R{#1}\def\aoa@sign{}%
+  \expandafter\aoa@checksign\aoa@R\@nil
+  \ifnum#2=0 \edef\aoa@ans{\aoa@sign\aoa@R}%
+  \else
+    \expandafter\aoa@len\expandafter{\aoa@R}%
+    \ifnum\aoa@cnt>#2 \else
+      \edef\aoa@R{\aoa@zeros{\numexpr#2-\aoa@cnt+1\relax}\aoa@R}%
+      \expandafter\aoa@len\expandafter{\aoa@R}%
+    \fi
+    \aoa@i=\numexpr\aoa@cnt-#2\relax
+    \def\aoa@head{}\def\aoa@tail{}%
+    \expandafter\aoa@splitat\aoa@R\aoa@end
+    \edef\aoa@ans{\aoa@sign\aoa@head.\aoa@tail}%
+  \fi}
+\def\aoa@checksign#1#2\@nil{\ifx-#1\def\aoa@sign{-}\def\aoa@R{#2}\fi}
+% move the first \aoa@i digits to \aoa@head, the rest to \aoa@tail
+\def\aoa@splitat#1{%
+  \ifx#1\aoa@end\else
+    \ifnum\aoa@i>0 \edef\aoa@head{\aoa@head#1}\advance\aoa@i -1
+    \else \edef\aoa@tail{\aoa@tail#1}\fi
+    \expandafter\aoa@splitat\fi}
+% drop trailing zeros after the point (and the point itself if nothing is left)
+\def\aoa@stripzeros{%
+  \expandafter\aoa@split\expandafter{\aoa@ans}%
+  \ifx\aoa@frac\@empty\else
+    \edef\aoa@F{\expandafter\@gobble\aoa@frac}%
+    \aoa@revstrip
+    \ifx\aoa@F\@empty \edef\aoa@ans{\aoa@int}%
+    \else \edef\aoa@ans{\aoa@int.\aoa@F}\fi
+  \fi}
+\def\aoa@revstrip{%
+  \edef\aoa@last{\expandafter\aoa@lastdigit\aoa@F\aoa@end}%
+  \if0\aoa@last
+    \edef\aoa@F{\expandafter\aoa@dropl\aoa@F\aoa@end}%
+    \ifx\aoa@F\@empty\else\expandafter\expandafter\expandafter\aoa@revstrip\fi
+  \fi}
+\def\aoa@lastdigit#1#2{\ifx#2\aoa@end #1\else\expandafter\aoa@lastdigit\expandafter#2\fi}
+\def\aoa@dropl#1#2{\ifx#2\aoa@end\else #1\expandafter\aoa@dropl\expandafter#2\fi}
+
+% ------------------------------------------------------------- division
+% n / d for whole numbers: the decimal, with a bar over the repeating
+% part. Long repeats (more than 12 digits) show the first 24 digits.
+\newcount\aoa@q \newcount\aoa@r \newcount\aoa@pos \newcount\aoa@stamp
+\def\aoa@division#1#2{%
+  \aoa@longdiv{#1}{#2}%
+  \global\let\aoa@lastans\aoa@ans
+  \aoa@logans{dvd}{#1,#2}%
+  \def\aoa@tmp{compact}%
+  \ifx\aoa@answers\aoa@show
+    \ifx\aoa@style\aoa@tmp $#1 \div #2 = \aoa@ans$%
+    \else \aoa@divstack{#1}{#2}{\@firstofone}\fi
+  \else\ifx\aoa@answers\aoa@solution \aoa@divstack{#1}{#2}{\aoa@solcolor}%
+  \else\ifx\aoa@answers\aoa@space \aoa@divstack{#1}{#2}{\phantom}%
+  \else
+    \ifx\aoa@style\aoa@tmp $#1 \div #2$%
+    \else \aoa@divstack{#1}{#2}{}\fi
+  \fi\fi\fi}
+% long-division layout: answer over the bar, divisor ) dividend
+\def\aoa@divstack#1#2#3{%
+  \def\aoa@tmp{#3}%
+  $\begin{array}[t]{@{}r@{}l@{}}
+     & \ifx\aoa@tmp\@empty\vphantom{0}\else\;#3{\aoa@ans}\fi \\ \cline{2-2}
+     #2\,\big) & \;#1
+   \end{array}$}
+
+\def\aoa@longdiv#1#2{%
+  \global\advance\aoa@stamp 1
+  \aoa@q=\numexpr#1/#2\relax
+  \ifnum\numexpr\aoa@q*#2\relax>#1 \advance\aoa@q -1 \fi
+  \aoa@r=\numexpr#1-\aoa@q*#2\relax
+  \edef\aoa@whole{\the\aoa@q}%
+  \def\aoa@digits{}\aoa@pos=0 \let\aoa@reppos\relax
+  \loop
+    \ifnum\aoa@r=0 \aoa@pos=-1 \fi
+    \ifnum\aoa@pos>-1
+      \expandafter\ifx\csname aoa@seen@\the\aoa@stamp @\the\aoa@r\endcsname\relax
+        \expandafter\edef\csname aoa@seen@\the\aoa@stamp @\the\aoa@r\endcsname{\the\aoa@pos}%
+        \aoa@q=\numexpr(10*\aoa@r)/#2\relax
+        \ifnum\numexpr\aoa@q*#2\relax>\numexpr10*\aoa@r\relax \advance\aoa@q -1 \fi
+        \aoa@r=\numexpr10*\aoa@r-\aoa@q*#2\relax
+        \edef\aoa@digits{\aoa@digits\the\aoa@q}%
+        \advance\aoa@pos 1
+      \else
+        \edef\aoa@reppos{\csname aoa@seen@\the\aoa@stamp @\the\aoa@r\endcsname}%
+        \aoa@pos=-1
+      \fi
+    \fi
+  \ifnum\aoa@pos>-1 \repeat
+  \ifx\aoa@digits\@empty
+    \let\aoa@ans\aoa@whole          % divides evenly
+  \else\ifx\aoa@reppos\relax
+    \edef\aoa@ans{\aoa@whole.\aoa@digits}% terminates
+  \else
+    % split digits at the start of the repeat
+    \aoa@i=\aoa@reppos\relax
+    \def\aoa@head{}\def\aoa@tail{}%
+    \expandafter\aoa@splitat\aoa@digits\aoa@end
+    \expandafter\aoa@len\expandafter{\aoa@tail}%
+    \ifnum\aoa@cnt>12
+      \aoa@i=24 \edef\aoa@R{\aoa@head\aoa@tail\aoa@tail}%
+      \let\aoa@hh\aoa@head
+      \def\aoa@head{}\def\aoa@tail{}%
+      \expandafter\aoa@splitat\aoa@R\aoa@end
+      \edef\aoa@ans{\aoa@whole.\aoa@head\noexpand\ldots}%
+    \else
+      \edef\aoa@ans{\aoa@whole.\aoa@head\noexpand\overline{\aoa@tail}}%
+    \fi
+  \fi\fi}
 \makeatother

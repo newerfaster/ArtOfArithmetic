@@ -176,7 +176,7 @@
 \newcommand{\PrintAnswers}{%
   \aoa@checkbuild
   \ifaoa@workbook\else
-    \section*{Answers}\aoa@key
+    \@ifundefined{chapter}{\section*{Answers}}{\chapter*{Answers}}\aoa@key
   \fi}
 \def\aoa@keyblock#1#2{\par\smallskip\noindent\textbf{#1}\quad #2\par}
 \def\aoa@keyitem#1#2{\mbox{\textbf{#1.}~#2}\hskip 1.5em plus 1em\relax}
