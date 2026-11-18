@@ -1,0 +1,142 @@
+% Chapter 1 problems: Addition and Subtraction
+% Each section's blocks are wrapped in \problemset{name}{...};
+% chapters/ch1-addition.tex prints them with \useproblems{name}.
+
+% 1.1 Single-digit addition
+\problemset{single-digit}{
+\begin{exblock}[cols=4, style=stacked]
+\begin{problem} \add{0}{0} \end{problem}
+\begin{problem} \add{0}{1} \end{problem}
+\begin{problem} \add{1}{0} \end{problem}
+\begin{problem} \add{1}{1} \end{problem}
+\end{exblock}
+
+% repunits
+\begin{exblock}[cols=4, style=stacked]
+\begin{problem} \add{110}{11} \end{problem}
+\begin{problem} \add{1110}{111} \end{problem}
+\begin{problem} \add{11110}{1111} \end{problem}
+\begin{problem} \add{111110}{11111} \end{problem}
+\end{exblock}
+}
+
+% 1.2 Carrying: two-number sums
+\problemset{carrying}{
+% Fibonacci numbers
+\begin{exblock}[cols=5, style=stacked, themes={fib}]
+\begin{problem} \add{1}{0} \end{problem}
+\begin{problem} \add{1}{1} \end{problem}
+\begin{problem} \add{2}{1} \end{problem}
+\begin{problem} \add{3}{2} \end{problem}
+\begin{problem} \add{5}{3} \end{problem}
+\begin{problem} \add{8}{5} \end{problem}
+\begin{problem} \add{13}{8} \end{problem}
+\begin{problem} \add{21}{13} \end{problem}
+\begin{problem} \add{34}{21} \end{problem}
+\end{exblock}
+
+% big sums
+\begin{exblock}[cols=3, style=stacked]
+\begin{problem} \add{9876543210}{1111111111} \end{problem}
+\begin{problem} \add{1111111111}{123456789} \end{problem}
+\begin{problem} \add{9876543210}{123456789} \end{problem}
+\begin{problem} \add{987654321}{123456789} \end{problem}
+\begin{problem} \add{987654321}{1234567899} \end{problem}
+\end{exblock}
+
+% Fibonacci numbers hiding in the digits
+\begin{exblock}[cols=2, style=stacked, themes={fib}]
+\begin{problem} \add{10102030508132134}{101020305081321} \end{problem}
+\begin{problem} \add{112359550}{11235955} \end{problem}
+\end{exblock}
+}
+
+% 1.3 Adding many numbers
+\problemset{many-addends}{
+% repunits, shifted
+\begin{exblock}[cols=3, style=stacked]
+\begin{problem} \add{1100,110,11} \end{problem}
+\begin{problem} \add{11100,1110,111} \end{problem}
+\begin{problem} \add{111100,11110,1111} \end{problem}
+\end{exblock}
+
+\begin{exblock}[cols=2, style=stacked]
+\begin{problem} \add{11111111100000000,1111111110000000,111111111000000,
+  11111111100000,1111111110000,111111111000,11111111100,1111111110,
+  111111111} \end{problem}
+\begin{problem} \add{1111111111000000000,111111111100000000,11111111110000000,
+  1111111111000000,111111111100000,11111111110000,1111111111000,
+  111111111100,11111111110,1111111111} \end{problem}
+\end{exblock}
+
+% tribonacci numbers
+\begin{exblock}[cols=5, style=stacked, themes={tribonacci}]
+\begin{problem} \add{1,0,0} \end{problem}
+\begin{problem} \add{1,1,0} \end{problem}
+\begin{problem} \add{2,1,1} \end{problem}
+\begin{problem} \add{4,2,1} \end{problem}
+\begin{problem} \add{7,4,2} \end{problem}
+\begin{problem} \add{13,7,4} \end{problem}
+\begin{problem} \add{24,13,7} \end{problem}
+\begin{problem} \add{44,24,13} \end{problem}
+% original list had 91 here; the tribonacci number is 81
+\begin{problem} \add{81,44,24} \end{problem}
+\end{exblock}
+
+% tribonacci numbers hiding in the digits
+\begin{exblock}[cols=2, style=stacked, themes={tribonacci}]
+\begin{problem} \add{10102040713244491,101020407132444,1010204071324} \end{problem}
+\begin{problem} \add{11248593,1124859,112485} \end{problem}
+\end{exblock}
+
+% Fibonacci numbers hiding in the digits, four rows
+\begin{exblock}[cols=2, style=stacked, themes={fib}]
+\begin{problem} \add{10102030508132134,101020305081321,101020305081321,
+  1010203050813} \end{problem}
+\begin{problem} \add{112359550,11235955,11235955,1123595} \end{problem}
+\end{exblock}
+
+\begin{exblock}[style=stacked, themes={tribonacci}]
+\begin{problem} \add{101010100000000000000,10102040713244491,101020407132444,
+  1010204071324,101020407132444,1010204071324,10102040713,1010204071324,
+  10102040713,101020407} \end{problem}
+\end{exblock}
+
+% powers of 2, as decimals
+\begin{exblock}[cols=2, style=stacked, themes={powers of 2}]
+\begin{problem} \add{0.1000000000,0.0200000000,0.0040000000,0.0008000000,
+  0.0001600000,0.0000320000,0.0000064000,0.0000012800,0.0000002560,
+  0.0000000512,0.0000000102,0.0000000021,0.0000000004,0.0000000001}
+\end{problem}
+\begin{problem} \add{0.100000000000026214,0.020000000000005243,
+  0.004000000000001049,0.000800000000000210,0.000160000000000042,
+  0.000032000000000008,0.000006400000000002,0.000001280000000000,
+  0.000000256000000000,0.000000051200000000,0.000000010240000000,
+  0.000000002048000000,0.000000000409600000,0.000000000081920000,
+  0.000000000016384000,0.000000000003276800,0.000000000000655360,
+  0.000000000000131072} \end{problem}
+\end{exblock}
+
+% 1/7 = 14/98: doubling 14 at two-place shifts gives 0.142857...
+\begin{exblock}[cols=1, style=stacked, themes={powers of 2,sevens}]
+\begin{problem} \add{0.1400000000000000,0.0028000000000000,0.0000560000000000,
+  0.0000011200000000,0.0000000224000000,0.0000000004480000,
+  0.0000000000089600,0.0000000000001792} \end{problem}
+\end{exblock}
+}
+
+% 1.4 Subtraction and borrowing
+\problemset{borrowing}{
+\begin{exblock}[cols=2, style=stacked]
+\begin{problem} \sub{123456789}{111111111} \end{problem}
+\begin{problem} \sub{9876543210}{1111111111} \end{problem}
+\begin{problem} \sub{1111111111}{987654321} \end{problem}
+\begin{problem} \sub{1111111111}{123456789} \end{problem}
+\begin{problem} \sub{10101010101}{1010101010} \end{problem}
+\begin{problem} \sub{1111111111}{123212321} \end{problem}
+\begin{problem} \sub{112345678}{23456789} \end{problem}
+\begin{problem} \sub{111234567}{23456789} \end{problem}
+\begin{problem}[themes={fib}] \sub{10102030508132135}{101020305081321} \end{problem}
+\begin{problem}[themes={fib}] \sub{112359550}{11235955} \end{problem}
+\end{exblock}
+}

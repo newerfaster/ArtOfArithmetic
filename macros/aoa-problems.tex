@@ -106,6 +106,18 @@
       \noexpand\aoa@keyblock{\theexblock}{\unexpanded\expandafter{\aoa@blockkey}}}%
   \fi}
 
+% ------------------------------------------------- problem sets
+% A chapter's problem file holds all of its sections' blocks, each set
+% wrapped in \problemset{name}{...}. Loading the file stores the sets;
+% \useproblems{name} in the chapter file prints one where it belongs.
+\newcommand{\problemset}[2]{%
+  \@ifundefined{aoa@ps@#1}{}{\PackageWarning{aoa}{Problem set `#1' defined twice}}%
+  \long\expandafter\gdef\csname aoa@ps@#1\endcsname{#2}}
+\newcommand{\useproblems}[1]{%
+  \@ifundefined{aoa@ps@#1}%
+    {\PackageWarning{aoa}{No problem set `#1'}\textbf{[missing problem set #1]}}%
+    {\csname aoa@ps@#1\endcsname}}
+
 % ----------------------------------------------------------- problems
 \define@key{aoaprob}{id}{\def\aoa@id{#1}}
 \define@key{aoaprob}{themes}{\def\aoa@themes{#1}}

@@ -1,0 +1,170 @@
+% Chapter 2 problems: Multiplication
+% Each section's blocks are wrapped in \problemset{name}{...};
+% chapters/ch2-multiplication.tex prints them with \useproblems{name}.
+
+% 2.1 Multiplying by one digit
+\problemset{one-digit}{
+% sevens: 142857 cycles (ties to 1/7)
+\begin{exblock}[cols=4, style=stacked, themes={sevens}]
+\begin{problem} \mul{142857}{1} \end{problem}
+\begin{problem} \mul{142857}{2} \end{problem}
+\begin{problem} \mul{142857}{3} \end{problem}
+\begin{problem} \mul{142857}{4} \end{problem}
+\begin{problem} \mul{142857}{5} \end{problem}
+\begin{problem} \mul{142857}{6} \end{problem}
+\begin{problem} \mul{142857}{7} \end{problem}
+\end{exblock}
+
+% repdigit answers
+\begin{exblock}[cols=5, style=stacked]
+\begin{problem} \mul{15873}{7} \end{problem}
+\begin{problem} \mul{37037}{3} \end{problem}
+\begin{problem} \mul{37037}{6} \end{problem}
+\begin{problem} \mul{37037}{9} \end{problem}
+\begin{problem} \mul{12345679}{9} \end{problem}
+\end{exblock}
+
+% 1001 and 10101
+\begin{exblock}[cols=2, style=stacked, themes={sevens}]
+\begin{problem} \mul{143}{7} \end{problem}
+\begin{problem} \mul{1443}{7} \end{problem}
+\end{exblock}
+
+% eights
+\begin{exblock}[cols=2, style=stacked]
+\begin{problem} \mul{123}{8} \end{problem}
+\begin{problem} \mul{12345}{8} \end{problem}
+\end{exblock}
+
+% 123456789 times 1-9: digits 1-9 reappear unless k is a multiple of 3
+\begin{exblock}[cols=3, style=stacked]
+\begin{problem} \mul{123456789}{1} \end{problem}
+\begin{problem} \mul{123456789}{2} \end{problem}
+\begin{problem} \mul{123456789}{3} \end{problem}
+\begin{problem} \mul{123456789}{4} \end{problem}
+\begin{problem} \mul{123456789}{5} \end{problem}
+\begin{problem} \mul{123456789}{6} \end{problem}
+\begin{problem} \mul{123456789}{7} \end{problem}
+\begin{problem} \mul{123456789}{8} \end{problem}
+\begin{problem} \mul{123456789}{9} \end{problem}
+\end{exblock}
+
+% reversals: 1089 times 1-9 gives reversed pairs (k and 10-k)
+\begin{exblock}[cols=3, style=stacked, themes={reversals}]
+\begin{problem} \mul{1089}{1} \end{problem}
+\begin{problem} \mul{1089}{2} \end{problem}
+\begin{problem} \mul{1089}{3} \end{problem}
+\begin{problem} \mul{1089}{4} \end{problem}
+\begin{problem} \mul{1089}{5} \end{problem}
+\begin{problem} \mul{1089}{6} \end{problem}
+\begin{problem} \mul{1089}{7} \end{problem}
+\begin{problem} \mul{1089}{8} \end{problem}
+\begin{problem} \mul{1089}{9} \end{problem}
+\end{exblock}
+
+% reversals by 9: more 9s in the middle
+\begin{exblock}[cols=3, style=stacked, themes={reversals}]
+\begin{problem} \mul{10989}{9} \end{problem}
+\begin{problem} \mul{109989}{9} \end{problem}
+\begin{problem} \mul{1099989}{9} \end{problem}
+\begin{problem} \mul{10999989}{9} \end{problem}
+\begin{problem} \mul{109999989}{9} \end{problem}
+\end{exblock}
+
+% reversals by 4: 2178 = 2 x 1089
+\begin{exblock}[cols=3, style=stacked, themes={reversals}]
+\begin{problem} \mul{2178}{4} \end{problem}
+\begin{problem} \mul{21978}{4} \end{problem}
+\begin{problem} \mul{219978}{4} \end{problem}
+\begin{problem} \mul{2199978}{4} \end{problem}
+\begin{problem} \mul{21999978}{4} \end{problem}
+\begin{problem} \mul{219999978}{4} \end{problem}
+\end{exblock}
+
+% reversals: doubled copies, with or without a 0 between
+\begin{exblock}[cols=2, style=stacked, themes={reversals}]
+\begin{problem} \mul{10891089}{9} \end{problem}
+\begin{problem} \mul{108901089}{9} \end{problem}
+\begin{problem} \mul{21782178}{4} \end{problem}
+\begin{problem} \mul{217802178}{4} \end{problem}
+\end{exblock}
+}
+
+% 2.2 Multiplying by 11
+\problemset{elevens}{
+\begin{exblock}[cols=4, style=stacked, themes={elevens}]
+\begin{problem} \mul{8}{11} \end{problem}
+\begin{problem} \mul{9}{11} \end{problem}
+\begin{problem} \mul{10}{11} \end{problem}
+\begin{problem} \mul{11}{11} \end{problem}
+\begin{problem} \mul{12}{11} \end{problem}
+\begin{problem} \mul{13}{11} \end{problem}
+\begin{problem} \mul{22}{11} \end{problem}
+\begin{problem} \mul{55}{11} \end{problem}
+\end{exblock}
+
+\begin{exblock}[cols=6, style=stacked, themes={elevens}]
+\begin{problem} \mul{101}{11} \end{problem}
+\begin{problem} \mul{111}{11} \end{problem}
+\begin{problem} \mul{121}{11} \end{problem}
+\begin{problem} \mul{131}{11} \end{problem}
+\begin{problem} \mul{141}{11} \end{problem}
+\begin{problem} \mul{191}{11} \end{problem}
+\end{exblock}
+
+\begin{exblock}[cols=6, style=stacked, themes={elevens}]
+\begin{problem} \mul{1001}{11} \end{problem}
+\begin{problem} \mul{1111}{11} \end{problem}
+\begin{problem} \mul{1221}{11} \end{problem}
+\begin{problem} \mul{1331}{11} \end{problem}
+\begin{problem} \mul{1441}{11} \end{problem}
+\begin{problem} \mul{1551}{11} \end{problem}
+\end{exblock}
+
+% rows of Pascal's triangle times 11
+\begin{exblock}[cols=5, style=stacked, themes={elevens,pascal}]
+\begin{problem} \mul{10001}{11} \end{problem}
+\begin{problem} \mul{11111}{11} \end{problem}
+\begin{problem} \mul{12321}{11} \end{problem}
+\begin{problem} \mul{13531}{11} \end{problem}
+\begin{problem} \mul{14641}{11} \end{problem}
+\end{exblock}
+
+\begin{exblock}[cols=2, style=stacked, themes={elevens,fib}]
+\begin{problem} \mul{112345}{11} \end{problem}
+\begin{problem} \mul{112358}{11} \end{problem}
+\end{exblock}
+}
+
+% 2.3 Bigger products
+\problemset{products}{
+% sevens continued
+\begin{exblock}[cols=3, style=stacked, themes={sevens}]
+\begin{problem} \mul{15873}{14} \end{problem}
+\begin{problem} \mul{15873}{21} \end{problem}
+\begin{problem} \mul{15873}{63} \end{problem}
+\end{exblock}
+
+\begin{exblock}[cols=1, style=stacked]
+\begin{problem} \mul{123456789}{81} \end{problem}
+\end{exblock}
+
+% repunit squares
+\begin{exblock}[cols=3, style=stacked]
+\begin{problem} \mul{111}{111} \end{problem}
+\begin{problem} \mul{1111}{1111} \end{problem}
+\begin{problem} \mul{111111111}{111111111} \end{problem}
+\end{exblock}
+
+\begin{exblock}[cols=3, style=stacked]
+\begin{problem} \mul{18181818}{55} \end{problem}
+\begin{problem} \mul{18181818}{55555555} \end{problem}
+\begin{problem} \mul{45454545}{55555555} \end{problem}
+\end{exblock}
+
+\begin{exblock}[cols=3, style=stacked]
+\begin{problem} \mul{111}{888} \end{problem}
+\begin{problem} \mul{22222}{44444} \end{problem}
+\begin{problem} \mul{111111111}{888888888} \end{problem}
+\end{exblock}
+}
