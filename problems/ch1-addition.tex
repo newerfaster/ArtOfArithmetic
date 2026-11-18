@@ -139,4 +139,35 @@
 \begin{problem}[themes={fib}] \sub{10102030508132135}{101020305081321} \end{problem}
 \begin{problem}[themes={fib}] \sub{112359550}{11235955} \end{problem}
 \end{exblock}
+
+% the 1089 trick: subtract the reversal, then add the result's reversal
+\begin{exblock}[cols=2, style=stacked, themes={reversals}]
+\begin{problem} \sub{321}{123} \end{problem}
+\begin{problem} \add{198}{891} \end{problem}
+\begin{problem} \sub{752}{257} \end{problem}
+\begin{problem} \add{495}{594} \end{problem}
+\begin{problem} \sub{941}{149} \end{problem}
+\begin{problem} \add{792}{297} \end{problem}
+\end{exblock}
+
+% Kaprekar's 6174 (D. R. Kaprekar, 1949): largest-first minus smallest-first, repeat
+\begin{exblock}[cols=4, style=stacked, themes={kaprekar}]
+\begin{problem} \sub{5432}{2345} \end{problem}
+\begin{problem} \sub{8730}{378} \end{problem}
+\begin{problem} \sub{8532}{2358} \end{problem}
+\begin{problem} \sub{7641}{1467} \end{problem}
+\end{exblock}
+
+% borrowing across zeros
+\begin{exblock}[cols=3, style=stacked, themes={sevens}]
+\begin{problem} \sub{1000000}{1} \end{problem}
+\begin{problem} \sub{999999}{142857} \end{problem}
+\begin{problem} \sub{1000000}{142857} \end{problem}
+\end{exblock}
+
+% pretty answers
+\begin{exblock}[cols=2, style=stacked]
+\begin{problem} \sub{987654321}{123456789} \end{problem}
+\begin{problem}[themes={reversals}] \sub{9801}{1089} \end{problem}
+\end{exblock}
 }
