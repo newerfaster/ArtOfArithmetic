@@ -1,11 +1,23 @@
 % Chapter 3 problems: Division
 % Each section's blocks are wrapped in \problemset{name}{...};
 % chapters/ch3-division.tex prints them with \useproblems{name}.
-%
-% TODO (Alex, Nov 18, 2026): reuse the reversal problems from 2.1
-% (theme `reversals`) here as divisions, e.g. 9801/9 = 1089, 8712/4 = 2178.
 
-% 3.1 Reciprocals
+% 3.1 Dividing by one digit
+\problemset{div-one-digit}{
+% reversals from 2.1, undone: the answer is the dividend written backwards
+\begin{exblock}[cols=4, style=stacked, themes={reversals}]
+\begin{problem} \dvd{9801}{9} \end{problem}
+\begin{problem} \dvd{98901}{9} \end{problem}
+\begin{problem} \dvd{9899901}{9} \end{problem}
+\begin{problem} \dvd{98019801}{9} \end{problem}
+\begin{problem} \dvd{8712}{4} \end{problem}
+\begin{problem} \dvd{87912}{4} \end{problem}
+\begin{problem} \dvd{8799912}{4} \end{problem}
+\begin{problem} \dvd{87128712}{4} \end{problem}
+\end{exblock}
+}
+
+% 3.2 Reciprocals
 \problemset{reciprocals}{
 % small reciprocals
 \begin{exblock}[cols=4]
@@ -81,7 +93,7 @@
 \end{exblock}
 }
 
-% 3.2 Other numerators
+% 3.3 Other numerators
 \problemset{other-numerators}{
 % numerators other than 1
 \begin{exblock}[cols=2, style=stacked]
